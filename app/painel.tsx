@@ -2,15 +2,15 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-type ChipRoute = "/login" | "/mapa-logado" | "/criacao_reporte";
+type ChipRoute = "/login" | "/mapa-logado" | "/criacao_reporte" | "/perfil" | "/painel" | "/detalhe";
 
 const chips: { label: string; route: ChipRoute }[] = [
   { label: "Login", route: "/login" },
   { label: "Mapa", route: "/mapa-logado" },
   { label: "Criar reporte", route: "/criacao_reporte" },
-  { label: "Detalhe da ocorrência", route: "/mapa-logado" },
-  { label: "Perfil", route: "/login" },
-  { label: "Painel da prefeitura", route: "/mapa-logado" },
+  { label: "Detalhe da ocorrência", route: "/detalhe" },
+  { label: "Perfil", route: "/perfil" },
+  { label: "Painel da prefeitura", route: "/painel" },
 ];
 
 export default function Detalhe() {

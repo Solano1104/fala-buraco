@@ -1,16 +1,19 @@
-import { StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const chips = [
-  "Login",
-  "Mapa",
-  "Criar reporte",
-  "Detalhe da ocorrência",
-  "Perfil",
-  "Painel da prefeitura",
+type ChipRoute = "/login" | "/mapa-logado" | "/criacao_reporte" | "/perfil" | "/painel" | "/detalhe";
+
+const chips: { label: string; route: ChipRoute }[] = [
+  { label: "Login", route: "/login" },
+  { label: "Mapa", route: "/mapa-logado" },
+  { label: "Criar reporte", route: "/criacao_reporte" },
+  { label: "Detalhe da ocorrência", route: "/detalhe" },
+  { label: "Perfil", route: "/perfil" },
+  { label: "Painel da prefeitura", route: "/painel" },
 ];
 
-export default function Detalhe() {
+export default function CriacaoReporte() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -31,14 +34,19 @@ export default function Detalhe() {
 
         <View style={styles.chipsRow}>
           {chips.map((chip, index) => (
-            <View
-              key={`${chip}-${index}`}
-              style={[styles.chip, index === 0 && styles.chipActive]}
+            <Pressable
+              key={`${chip.label}-${index}`}
+              onPress={() => router.push(chip.route)}
+              style={({ pressed }) => [
+                styles.chip,
+                index === 0 && styles.chipActive,
+                pressed && styles.chipPressed,
+              ]}
             >
               <Text style={[styles.chipText, index === 0 && styles.chipTextActive]}>
-                {chip}
+                {chip.label}
               </Text>
-            </View>
+            </Pressable>
           ))}
         </View>
 
@@ -148,6 +156,11 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 7,
+    transform: [{ scale: 1 }],
+  },
+  chipPressed: {
+    transform: [{ scale: 0.97 }],
+    opacity: 0.92,
   },
   chipActive: {
     backgroundColor: "#ebf8f1",
