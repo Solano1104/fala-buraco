@@ -4,7 +4,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Login() {
   const entrarNoMapa = () => {
-    router.push("/mapa-logado");
+    router.push({
+      pathname: "/mapa",
+      params: { logado: "true" },
+    });
   };
 
   const entrarNoMapaSemLogin = () => {
