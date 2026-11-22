@@ -1,28 +1,42 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AuthProvider } from "@/context/auth-context";
+import { CidadeProvider } from "@/context/cidade-context";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export const unstable_settings = {
-  //anchor: '(tabs)',
-  //anchor: '(login)',
-  //initialRouteName: '(tabs)',
+  anchor: "index",
+  //initialRouteName: "login",
 };
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack initialRouteName="login" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="login" options={{ headerShown: true, title: 'Faça login com Google' }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-        <Stack.Screen name="mapa" options={{ headerShown: true, title: 'Mapa dos buracos' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <CidadeProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="cadastro" options={{ title: "Cadastro" }} />
+          <Stack.Screen
+            name="esqueci-senha"
+            options={{ title: "Recuperar senha" }}
+          />
+          <Stack.Screen
+            name="verificar-email"
+            options={{ headerShown: false }}
+          />
+          {/* Nova tela de reporte */}
+          <Stack.Screen
+            name="novo-reporte"
+            options={{ title: "", headerBackTitle: "", headerShadowVisible: false }}
+          />
+        </Stack>
+      </ThemeProvider>
+      </CidadeProvider>
+    </AuthProvider>
   );
 }
