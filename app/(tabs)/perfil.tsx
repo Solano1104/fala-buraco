@@ -14,22 +14,22 @@ export default function Perfil() {
   // Desloga, limpa o histórico de navegação e vai para o index.
   const handleSair = useSair();
 
-  const perfil = user ? user : 'sem informação disponivel';
+
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.status}>
-        {estaLogado ? (
+        {estaLogado && user ? (
           <>
             <Text style={[styles.statusTexto, { color: cores.verde }]}>
               Você está logado
             </Text>
-            <Text style={styles.titulo}>User: {perfil.displayName}</Text>
-            <Text style={styles.titulo}>Email: {perfil.email}</Text>
+            <Text style={styles.titulo}>User: {user.displayName ?? "Nome indisponível"}</Text>
+            <Text style={styles.titulo}>Email: {user.email ?? "E-mail indisponível"}</Text>
             
             <Image
               style={styles.image}
-              source={{ uri: perfil.photoURL }}
+              source={user.photoURL ?? undefined}
              // placeholder={{ blurhash }}
               contentFit="cover"
               transition={1000}

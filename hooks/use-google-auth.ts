@@ -18,7 +18,7 @@ export function useGoogleAuth() {
   });
 
   // Erro do próprio login com o Google (ex: usuário cancelou, client id errado).
-  const [error, setError] = useState<string | null>(null);
+  const [erroCredencial, setErroCredencial] = useState<{ resposta: typeof response; mensagem: string } | null>(null);
 
   // TEMPORÁRIO: mostra no terminal a redirect URI exata que está sendo usada,
   // pra cadastrar certinho em Authorized redirect URIs / JavaScript origins
@@ -37,12 +37,14 @@ export function useGoogleAuth() {
       // onAuthStateChanged no AuthProvider e atualiza o `user` global.
       const credential = GoogleAuthProvider.credential(id_token);
       signInWithCredential(auth, credential).catch((err) => {
-        setError(err.message);
+        setErroCredencial({ resposta: response, mensagem: err.message });
       });
-    } else if (response?.type === "error") {
-      setError(response.error?.message ?? "Erro ao logar com o Google");
     }
   }, [response]);
+
+  const error = response?.type === "error"
+    ? response.error?.message ?? "Erro ao logar com o Google"
+    : erroCredencial?.resposta === response ? erroCredencial?.mensagem ?? null : null;
 
   return { request, promptAsync, error };
 }

@@ -40,9 +40,8 @@ export function CidadeProvider({ children }: { children: ReactNode }) {
   const [coordenadas, setCoordenadas] = useState<Coordenadas | null>(null);
   const [status, setStatus] = useState<StatusCidade>("carregando");
 
-  const atualizar = useCallback(async () => {
+  const buscarLocalizacao = useCallback(async () => {
     try {
-      setStatus("carregando");
 
       const { status: permissao } =
         await Location.requestForegroundPermissionsAsync();
@@ -77,9 +76,14 @@ export function CidadeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const atualizar = useCallback(async () => {
+    setStatus("carregando");
+    await buscarLocalizacao();
+  }, [buscarLocalizacao]);
+
   useEffect(() => {
-    atualizar();
-  }, [atualizar]);
+    void buscarLocalizacao();
+  }, [buscarLocalizacao]);
 
   return (
     <CidadeContext.Provider value={{ cidade, uf, coordenadas, status, atualizar }}>

@@ -3,25 +3,34 @@ import { buscarOcorrencias } from "@/services/ocorrencias";
 import { Ocorrencia } from "@/types/ocorrencia";
 import { useEffect, useState } from "react";
 
-/** Carrega as ocorrências perto das coordenadas dadas. */
+const listaVazia: Ocorrencia[] = [];
+
 export function useOcorrencias(coordenadas: Coordenadas | null) {
-  const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const [resultado, setResultado] = useState<{
+    coordenadas: Coordenadas;
+    lista: Ocorrencia[];
+  } | null>(null);
 
   useEffect(() => {
-    if (!coordenadas) {
-      setOcorrencias([]);
-      return;
-    }
-    let ativo = true; // evita atualizar o estado depois que a tela mudou
-    setCarregando(true);
+    if (!coordenadas) return;
+
+    let ativo = true;
     buscarOcorrencias(coordenadas)
-      .then((lista) => ativo && setOcorrencias(lista))
-      .finally(() => ativo && setCarregando(false));
+      .catch((erro) => {
+        console.warn("Falha ao carregar ocorrências", erro);
+        return listaVazia;
+      })
+      .then((lista) => {
+        if (ativo) setResultado({ coordenadas, lista });
+      });
+
     return () => {
       ativo = false;
     };
   }, [coordenadas]);
 
-  return { ocorrencias, carregando };
+  return {
+    ocorrencias: resultado?.coordenadas === coordenadas ? resultado.lista : listaVazia,
+    carregando: coordenadas !== null && resultado?.coordenadas !== coordenadas,
+  };
 }
