@@ -1,36 +1,32 @@
-import { Coordenadas } from "@/context/cidade-context";
 import { buscarOcorrencias } from "@/services/ocorrencias";
-import { Ocorrencia } from "@/types/ocorrencia";
-import { useEffect, useState } from "react";
+import type { Ocorrencia } from "@/types/ocorrencia";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 
-const listaVazia: Ocorrencia[] = [];
+export function useOcorrencias() {
+  const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+  const [versao, setVersao] = useState(0);
+  const atualizar = useCallback(() => setVersao((valor) => valor + 1), []);
 
-export function useOcorrencias(coordenadas: Coordenadas | null) {
-  const [resultado, setResultado] = useState<{
-    coordenadas: Coordenadas;
-    lista: Ocorrencia[];
-  } | null>(null);
-
-  useEffect(() => {
-    if (!coordenadas) return;
-
+  useFocusEffect(useCallback(() => {
+    // Ao voltar do formulário, uma nova busca inclui o reporte recém-gravado.
     let ativo = true;
-    buscarOcorrencias(coordenadas)
-      .catch((erro) => {
-        console.warn("Falha ao carregar ocorrências", erro);
-        return listaVazia;
+    setCarregando(true);
+    setErro("");
+
+    buscarOcorrencias()
+      .then((lista) => { if (ativo) setOcorrencias(lista); })
+      .catch((falha) => {
+        if (!ativo) return;
+        console.warn("Falha ao carregar ocorrências", falha);
+        setErro("Não foi possível carregar os reportes.");
       })
-      .then((lista) => {
-        if (ativo) setResultado({ coordenadas, lista });
-      });
+      .finally(() => { if (ativo) setCarregando(false); });
 
-    return () => {
-      ativo = false;
-    };
-  }, [coordenadas]);
+    return () => { ativo = false; };
+  }, [versao]));
 
-  return {
-    ocorrencias: resultado?.coordenadas === coordenadas ? resultado.lista : listaVazia,
-    carregando: coordenadas !== null && resultado?.coordenadas !== coordenadas,
-  };
+  return { ocorrencias, carregando, erro, atualizar };
 }

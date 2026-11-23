@@ -4,6 +4,7 @@ export type Ocorrencia = {
   id: string;
   titulo: string;
   descricao?: string;
+  criadoEm?: Date;
   status: StatusOcorrencia;
   latitude: number;
   longitude: number;

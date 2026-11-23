@@ -17,7 +17,7 @@ const tipos: { valor: TipoReporte; rotulo: string }[] = [
 export default function NovoReporte() {
   const roteador = useRouter();
   const { user: usuario } = useAuth();
-  const { coordenadas, status } = useCidade();
+  const { coordenadas, status, atualizar } = useCidade();
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [tipo, setTipo] = useState<TipoReporte>("buraco");
@@ -126,6 +126,16 @@ export default function NovoReporte() {
               {enviando && <ActivityIndicator color={cores.branco} />}
               <Text style={estilos.textoBotao}>{enviando ? "Enviando…" : "Enviar reporte"}</Text>
             </Pressable>
+            {!coordenadas && (status === "negado" || status === "erro") && (
+              <>
+                <Text accessibilityRole="alert">
+                  Localização indisponível. Permita a localização no aparelho ou navegador e tente novamente.
+                </Text>
+                <Pressable accessibilityRole="button" onPress={() => { setErro(""); void atualizar(); }}>
+                  <Text style={estilos.cancelar}>Tentar localização novamente</Text>
+                </Pressable>
+              </>
+            )}
             <Pressable accessibilityRole="button" onPress={voltar} disabled={enviando}>
               <Text style={estilos.cancelar}>Cancelar</Text>
             </Pressable>

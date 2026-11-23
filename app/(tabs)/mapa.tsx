@@ -15,7 +15,7 @@ export default function Mapa() {
   const router = useRouter();
   const { user } = useAuth(); // usuário logado (Firebase)
   const { cidade, uf, coordenadas, status, atualizar } = useCidade();
-  const { ocorrencias } = useOcorrencias(coordenadas);
+  const { ocorrencias } = useOcorrencias();
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<Filtro>("todos");
 

@@ -1,5 +1,6 @@
 import { siglaDoEstado } from "@/constants/estados";
 import * as Location from "expo-location";
+import { Platform } from "react-native";
 import {
   createContext,
   ReactNode,
@@ -29,11 +30,7 @@ export const CidadeContext = createContext<CidadeContextType>({
   atualizar: async () => {},
 });
 
-/**
- * Descobre onde o usuário está (GPS -> cidade/UF) e disponibiliza para o app
- * inteiro, igual o AuthProvider faz com o usuário logado.
- * Uso: const { cidade, uf, coordenadas } = useCidade();
- */
+
 export function CidadeProvider({ children }: { children: ReactNode }) {
   const [cidade, setCidade] = useState<string | null>(null);
   const [uf, setUf] = useState<string | null>(null);
@@ -42,22 +39,27 @@ export function CidadeProvider({ children }: { children: ReactNode }) {
 
   const buscarLocalizacao = useCallback(async () => {
     try {
-
-      const { status: permissao } =
-        await Location.requestForegroundPermissionsAsync();
-      if (permissao !== "granted") {
-        setStatus("negado");
-        return;
+      if (Platform.OS !== "web") {
+        const { status: permissao } = await Location.requestForegroundPermissionsAsync();
+        if (permissao !== "granted") {
+          setStatus("negado");
+          return;
+        }
       }
 
-      const pos = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      // No navegador a mesma chamada pede permissão e busca a posição.
+      const pos = Platform.OS === "web"
+        ? await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 12000 });
+          })
+        : await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       const aqui = {
         latitude: pos.coords.latitude,
         longitude: pos.coords.longitude,
       };
       setCoordenadas(aqui);
+      setStatus("pronto");
+      if (Platform.OS === "web") return;
 
       // Geocodificação reversa: coordenadas -> endereço. Se falhar, o mapa
       // ainda abre no lugar certo, só o título fica sem o nome da cidade.
@@ -69,14 +71,15 @@ export function CidadeProvider({ children }: { children: ReactNode }) {
         setCidade(null);
         setUf(null);
       }
-
-      setStatus("pronto");
-    } catch {
-      setStatus("erro");
+    } catch (falha) {
+      const negado = Platform.OS === "web" &&
+        typeof falha === "object" && falha !== null && "code" in falha && falha.code === 1;
+      setStatus(negado ? "negado" : "erro");
     }
   }, []);
 
   const atualizar = useCallback(async () => {
+    setCoordenadas(null);
     setStatus("carregando");
     await buscarLocalizacao();
   }, [buscarLocalizacao]);
